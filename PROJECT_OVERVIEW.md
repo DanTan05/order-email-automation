@@ -93,8 +93,7 @@ order-automation/
 │   ├── extract_one.py       ← Gemini extraction (Order schema + prompt)
 │   ├── validate.py          ← business rules
 │   ├── sheets.py            ← Google Sheets writer
-│   ├── run_pipeline.py      ← runs everything end to end
-│   └── test_sheet.py        ← old Part 1 connection check (see section 10)
+│   └── run_pipeline.py      ← runs everything end to end
 ├── tests/
 │   └── test_validate.py     ← 7 pytest tests for validate.py
 └── output/                  ← created by the pipeline                  (git-ignored)
@@ -248,15 +247,3 @@ After changing the prompt or model, delete the cache: `Remove-Item output\json\*
 | 8 | **Only the rules are tested** | `order_to_rows` and the pipeline have no tests | test `order_to_rows` with fake Orders (0 lines → 1 row, 3 lines → 3 rows) and mock Gemini |
 | 9 | **No price check against the catalog** | an email price far from the list price isn't noticed | rule: flag if `unit_price` differs from `list_price_aed` by more than X% |
 | 10 | **Emails are local .txt files** | not connected to a real inbox | read from Gmail/Outlook (API or IMAP) on a schedule |
-| 11 | **`src/test_sheet.py` is outdated** | it opens the sheet by name, which fails | delete it or switch it to `open_by_key` |
-
-## 11. What this project shows (for interviews)
-
-- **Using LLMs safely in a business process:** structured output + schema, temperature 0, a "never guess, null + explain" prompt, and a human review queue.
-- **Splitting work between AI and code:** the LLM understands text, deterministic code does the numbers and rules.
-- **Data cleaning and validation with pandas:** `to_numeric(errors="coerce")`, boolean masks, fuzzy matching against reference data.
-- **Production habits:** caching, a per-item `try/except`, idempotent writes, secrets kept outside the code and out of git, pinned dependencies, unit tests.
-- **Honest about limits:** a clear list of what breaks and how I'd fix it.
-
-**30-second pitch:**
-> "Trading companies get orders by email in every format, and someone retypes them by hand. I built a pipeline where Gemini turns each email into a fixed JSON schema and is told never to guess, so missing values come back as null with a note. pandas then cleans the data, matches products to the catalog, calculates totals and flags problems. Clean lines go to one Google Sheet tab and flagged ones to a Review tab for a person to check. I cache every LLM answer, handle failures per email, and the business rules are covered by pytest."
